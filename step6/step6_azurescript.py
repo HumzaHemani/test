@@ -4,3 +4,5 @@ blob_service_client = BlockBlobService(account_name='datasetsnpeff', sas_token='
 # blob_service_client.list_blob_names("dataset") # a generator object
 
 blob_service_client.get_blob_to_path('dataset/v5_0', "snpEff_v5_0_GRCh38.99.zip", "snpEff_v5_0_GRCh38.99.zip")
+
+print("snpEff_v5_0_GRCh38.99.zip has been successfully downloaded.")
