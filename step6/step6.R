@@ -60,7 +60,7 @@ REF=',ref,'
 DATASOURCE=',DatSource,'
 
 cat ${SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
-| parallel --jobs=2 --max-args=1 java -Xmx8g -jar /snpEff/snpEff.jar -canon -no-downstream -no-upstream GRCh38.86 $DATA/${SAMPLE}_{1}-1_var_FLTR.vcf \'>\' $OUT/${SAMPLE}_{1}_var.ann.vcf
+| parallel --jobs=2 --max-args=1 java -Xmx8g -jar /snpEff/snpEff.jar -canon -no-downstream -no-upstream GRCh38.99 $DATA/${SAMPLE}_{1}-1_var_FLTR.vcf \'>\' $OUT/${SAMPLE}_{1}_var.ann.vcf
 
 cat ${SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
 | parallel --jobs=2 --max-args=1 gatk --java-options "\'-Xmx8g -XX:+UseConcMarkSweepGC -XX:ConcGCThreads=1\'" Funcotator \\
