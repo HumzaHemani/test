@@ -7,3 +7,6 @@ Rscript step6.R BL5481 \
 ./funcotator \
 ./ \
 ./step6_out
+
+bash ./annotated/VARIANTS_BL5481_1.bash
+
