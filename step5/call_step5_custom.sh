@@ -1,4 +1,4 @@
-Rscript step5.R \
+Rscript /step5.R \
 $1 \
 $2 \
 $3 \
