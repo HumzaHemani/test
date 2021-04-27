@@ -7,6 +7,6 @@ $4 \
 $5 \
 $6
 
-for i in $(ls ${6}/annotated/VARIANTS*bash); do
+for i in $(ls ${5}/annotated/VARIANTS*bash); do
   bash $i
 done
