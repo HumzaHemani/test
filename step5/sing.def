@@ -70,6 +70,7 @@ From: ubuntu:latest
     wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step5/call_step5.sh
     wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step5/call_step5_custom.sh
     wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step5/readme.txt
+    wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step5/sing.def
 
 %test
     export PATH="$PATH:/gatk-4.1.0.0"
