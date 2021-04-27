@@ -1,6 +1,6 @@
 #!/bin/bash
 
-Rscript step6.R $1 \
+Rscript /step6.R $1 \
 $2 \
 $3 \
 $4 \
