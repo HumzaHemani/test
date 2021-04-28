@@ -22,8 +22,9 @@ if (length(args)==0) {
 
 # Filter passing mutations:
 # descriptions of filters in config file
-FilteredMutations <- SingleCellMutations %>%
-  filter(TLOD >= tlod & DP > dp & ECNT > ecnt)
+#FilteredMutations <- SingleCellMutations %>%
+#  filter(TLOD >= tlod & DP > dp & ECNT > ecnt)
+FilteredMutations <- SingleCellMutations
 
 # Write arguments for next script:
 Args <- as.vector(rbind(FilteredMutations$Chr,FilteredMutations$POS,FilteredMutations$bc,FilteredMutations$POS))
