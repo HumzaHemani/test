@@ -6,7 +6,7 @@ args = commandArgs(trailingOnly=TRUE)
 # UMI CORRECTION
 version <- '4.12.0'
 library(tidyverse)
-source('/config')
+source('config')
 
 # Arguments: metadata: tibble, mutations: tibble
 #sc_metadata <- read_csv(args[1])
@@ -22,9 +22,8 @@ if (length(args)==0) {
 
 # Filter passing mutations:
 # descriptions of filters in config file
-#FilteredMutations <- SingleCellMutations %>%
-#  filter(TLOD >= tlod & DP > dp & ECNT > ecnt)
-FilteredMutations <- SingleCellMutations
+FilteredMutations <- SingleCellMutations %>%
+  filter(TLOD >= tlod & DP > dp & ECNT > ecnt)
 
 # Write arguments for next script:
 Args <- as.vector(rbind(FilteredMutations$Chr,FilteredMutations$POS,FilteredMutations$bc,FilteredMutations$POS))
