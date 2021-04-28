@@ -17,12 +17,9 @@ From: ubuntu:latest
     apt-get -y -q install build-essential 
 
     wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step7/step7.R
-    wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step7/call_step7.sh
-    wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step7/call_step7_custom.sh
-    wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step7/step7_in.zip
+    wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step7/step7.bash
     wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step7/readme.txt
     wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step7/step7.def
-    unzip /step7_in.zip
 
     cd /
 
