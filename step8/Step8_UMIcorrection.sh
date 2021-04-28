@@ -20,7 +20,7 @@ samtools index ${1}
 
 cat ${PWD}/FilteredMutations \
 | parallel --jobs=30 --max-args=4 samtools view -b -S -h ${1} {1}:{2}-{2} \
-'|' java -jar /sam2tsv.jar \
+'|' java -jar /jvarkit/dist/sam2tsv.jar \
 '|' grep -e {4} \
 '>>' reads.tsv
 
