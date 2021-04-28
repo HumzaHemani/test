@@ -14,7 +14,7 @@ extract_meta () {
 
 # GENERATE METADATA:
 
-Rscript /UMI_CORRECTION_4.12.0.R ${2}
+Rscript /noUMI_CORRECTION_4.12.0.R ${2}
 
 # EXTRACT METADATA FOR CELL MUTATIONS:
 
