@@ -6,7 +6,7 @@ args = commandArgs(trailingOnly=TRUE)
 # UMI CORRECTION
 version <- '4.12.0'
 library(tidyverse)
-source('config')
+source('/config')
 
 # Arguments: metadata: tibble, mutations: tibble
 #sc_metadata <- read_csv(args[1])
