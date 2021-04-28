@@ -7,7 +7,7 @@ echo "mutations: $2";
 
 extract_meta () {
  	## use awk to find fields that match patterns
- 	awk '{ for (i=1; i<=NF; ++i) { if ($i ~ /J00/) { for (j=1; j<=NF; ++j) { if ($j ~ /CB/) { for (k=1; k<=NF; ++k) { if ($k ~ /UB/) {print $i"___"$j"___"$k} } } } } } }'
+ 	awk '{ for (i=1; i<=NF; ++i) { if ($i ~ /[DJ]00/) { for (j=1; j<=NF; ++j) { if ($j ~ /CB/) { for (k=1; k<=NF; ++k) { if ($k ~ /UB/) {print $i"___"$j"___"$k} } } } } } }'
 }; export -f extract_meta
 
 # GENERATE METADATA:
