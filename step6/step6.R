@@ -9,7 +9,7 @@ library(argparse)
 parser <- ArgumentParser()
 parser$add_argument("sample", help="The name of your sample.")
 parser$add_argument("variants_in", help="Directory containing step5 (variant calling) output.")
-parser$add_argument("reference", help="10x reference directory.")
+parser$add_argument("reference", help="(10x) reference .fa file.")
 parser$add_argument("data_source", help="Directory required for Funcotator.")
 parser$add_argument("scripts_dir", help="Where to write the bash files calling gatk.")
 parser$add_argument("out", help="Where all pipeline outs will be saved.")
@@ -65,7 +65,7 @@ cat ${SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
 cat ${SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
 | parallel --jobs=2 --max-args=1 gatk --java-options "\'-Xmx8g -XX:+UseConcMarkSweepGC -XX:ConcGCThreads=1\'" Funcotator \\
 --variant $DATA/${SAMPLE}_{1}-1_var_FLTR.vcf \\
---reference ', ref,'/genome.fa \\
+--reference ', ref,' \\
 --ref-version hg38 \\
 --data-sources-path ${DATASOURCE} \\
 --output $OUT/${SAMPLE}/${SAMPLE}_{1}_var_func.ann.vcf \\
