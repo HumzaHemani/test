@@ -12,7 +12,7 @@ parser$add_argument("sample", help="The name of your sample.")
 parser$add_argument("aligned_dir", help="Directory containing alignment files.")
 parser$add_argument("scBAM_dir", help="Directory containing BAM files for each cell.")
 parser$add_argument("snp_out", help="SNP consensus file. Should look like ...FLTR_SNP_consensus.fa.")
-parser$add_argument("reference", help="10x reference directory.")
+parser$add_argument("reference", help="(10x) reference .fa file.")
 parser$add_argument("scripts_dir", help="Where to write the bash files calling gatk.")
 parser$add_argument("out", help="Where all pipeline outs will be saved.")
 args <- parser$parse_args()
@@ -92,7 +92,7 @@ cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
 
 cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
 | parallel --jobs 2 gatk --java-options "\'-Xmx8g -XX:+UseConcMarkSweepGC\'" SplitNCigarReads \\
--R ${REF}/genome.fa \\
+-R ${REF} \\
 -I .tmp/${SAMPLE}_{}_UMI_SM.bam \\
 -O .tmp/${SAMPLE}_{}_UMI_SM_ST.bam
 
