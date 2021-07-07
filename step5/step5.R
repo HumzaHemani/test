@@ -86,9 +86,9 @@ cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
 -PU ${SAMPLE}_{} \\
 -SM ${SAMPLE}_{}
 
-# cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
-# | parallel --progress --jobs 2 samtools index \\
-# .tmp/${SAMPLE}_{}_UMI_SM.bam
+cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
+| parallel --progress --jobs 2 samtools index \\
+.tmp/${SAMPLE}_{}_UMI_SM.bam
 
 cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
 | parallel --jobs 2 gatk --java-options "\'-Xmx8g -XX:+UseConcMarkSweepGC\'" SplitNCigarReads \\
