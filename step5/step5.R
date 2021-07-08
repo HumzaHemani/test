@@ -15,6 +15,7 @@ parser$add_argument("snp_out", help="SNP consensus file. Should look like ...FLT
 parser$add_argument("reference", help="(10x) reference .fa file.")
 parser$add_argument("scripts_dir", help="Where to write the bash files calling gatk.")
 parser$add_argument("out", help="Where all pipeline outs will be saved.")
+parser$add_argument("num_cores", help="Jobs argument when carrying out parallel function. 32 recommended.")
 args <- parser$parse_args()
 
 # process passed args
@@ -24,6 +25,7 @@ scBAM <- args$scBAM_dir
 out <- args$out
 ref <- args$reference
 sam <- args$sample
+num_cores <- args$num_cores
 
 var_out <- file.path(out,'mutations_NoIntervals')
 snp_out <- args$snp_out
@@ -77,7 +79,7 @@ mkdir .tmp
 #						SPLIT BAM INTO SINGLE CELLS > CALL VARIANTS > FILTER/AGGREGATE VARIANTS to mutations.csv
  
 cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
-| parallel --progress --jobs 2 gatk --java-options "\'-Xmx1G\'" AddOrReplaceReadGroups \\
+| parallel --progress --jobs ',num_cores,' gatk --java-options "\'-Xmx1G\'" AddOrReplaceReadGroups \\
 -I ${scBAM}/${SAMPLE}_{}.bam \\
 -O .tmp/${SAMPLE}_{}_UMI_SM.bam \\
 -ID ${SAMPLE}_{} \\
@@ -87,17 +89,17 @@ cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
 -SM ${SAMPLE}_{}
 
 # cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
-# | parallel --progress --jobs 2 samtools index \\
+# | parallel --progress --jobs ',num_cores,' samtools index \\
 # .tmp/${SAMPLE}_{}_UMI_SM.bam
 
 cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
-| parallel --jobs 2 gatk --java-options "\'-Xmx8g -XX:+UseConcMarkSweepGC\'" SplitNCigarReads \\
+| parallel --jobs ',num_cores,' gatk --java-options "\'-Xmx8g -XX:+UseConcMarkSweepGC\'" SplitNCigarReads \\
 -R ${REF} \\
 -I .tmp/${SAMPLE}_{}_UMI_SM.bam \\
 -O .tmp/${SAMPLE}_{}_UMI_SM_ST.bam
 
 cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
-| parallel --jobs 2 gatk --java-options "\'-Xmx8g -XX:+UseConcMarkSweepGC\'" Mutect2 \\
+| parallel --jobs ',num_cores,' gatk --java-options "\'-Xmx8g -XX:+UseConcMarkSweepGC\'" Mutect2 \\
 -R ${REF_VAR}/${SAMPLE}_SM_bwa_RawSNPs_FLTR_SNP_consensus.fa \\
 -I .tmp/${SAMPLE}_{}_UMI_SM_ST.bam \\
 -I ${BIGBAM} \\
@@ -109,7 +111,7 @@ cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
 -O .tmp/${SAMPLE}_{}_var.vcf
 
 cat ${DIR_SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
-| parallel --jobs 2 gatk --java-options "\'-Xmx4g -XX:+UseConcMarkSweepGC\'" FilterMutectCalls \\
+| parallel --jobs ',num_cores,' gatk --java-options "\'-Xmx4g -XX:+UseConcMarkSweepGC\'" FilterMutectCalls \\
 -V .tmp/${SAMPLE}_{}_var.vcf \\
 -O ${DIR_O}/${SAMPLE}_{}_var_FLTR.vcf \\
 --tumor-lod 5.3 \\
