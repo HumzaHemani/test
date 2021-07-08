@@ -18,13 +18,13 @@ Rscript /UMI_CORRECTION_4.12.0.R ${2}
 
 samtools index ${1}
 
-cat ${PWD}/FilteredMutations \
+cat ${PWD}/UnfilteredMutations \
 | parallel --jobs=30 --max-args=4 samtools view -b -S -h ${1} {1}:{2}-{2} \
 '|' java -jar /jvarkit/dist/sam2tsv.jar \
 '|' grep -e {4} \
 '>>' reads.tsv
 
-cat ${PWD}/FilteredMutations \
+cat ${PWD}/UnfilteredMutations \
 | parallel --jobs=30 --max-args=4 samtools view ${1} {1}:{2}-{2} \
 | extract_meta \
 >> meta.tsv
