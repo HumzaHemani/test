@@ -7,6 +7,7 @@ consensus_SNPs=${consensus_SNPs:def_snps}
 ref_10x=${ref_10x:def_ref_10x}
 scripts_dir=${scripts_dir:def_scripts_dir}
 out_dir=${out_dir:def_out_dir}
+num_cores=${num_cores:def_num_cores}
 
 while [ $# -gt 0 ]; do            
     if [[ $1 == *"--"* ]]; then
@@ -24,7 +25,8 @@ $scBAMs \
 $consensus_SNPs \
 $ref_10x \
 $scripts_dir \
-$out_dir
+$out_dir \
+$num_cores
 
 for i in $(ls ${scripts_dir}/VARIANTS*bash); do
   bash $i
