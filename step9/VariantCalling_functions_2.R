@@ -57,14 +57,13 @@ Reformat_Annotated_Aggregated_VCF <- function(listcl_mutations) {
 
 score.mutations <- function(mutations, point, read) {
   
+   # get filter with recovered double-base mutations. 
+  double.mutations <- get.unfiltered.doubles(mutations, point, read)
+  print("Unfiltered doubles recovery complete")
+
   require(tidyverse) 
   sam = unique(mutations$donor)
   
-  # Count number of each mutation seen in Sample:
-    count.mutations <- mutations %>%
-      group_by(Chr,POS,REF,ALT) %>%
-      summarise(n())
-    
     # Generate Running Filter Dataframe:
     
     mutations.filtered <- mutations
@@ -81,7 +80,7 @@ score.mutations <- function(mutations, point, read) {
     # For Candidates for Correction:
     # Transform Point Mutations Read Data:
     # Join Point Mutations and Read Information:
-    colnames(point) <- c('read','zero','flag','Chr','p','ALT','qual','POS','i','j')
+    colnames(point) <- c('read','flag','Chr','p','ALT','qual','POS','i','j')
     point <- point %>% filter(ALT != '.')
     
     read <- read %>% separate(X1, into = c('read','bc','umi'), sep = '___') %>% 
@@ -104,7 +103,7 @@ score.mutations <- function(mutations, point, read) {
     # Remove any point mutations with less than 2 reads in a UMI:
     # (These can't be corrected)
     filter.reads.in.umi <- point.reads.filter %>% group_by(bc,Chr,POS,umi) %>%
-      summarise(reads_in_umi = n()) %>% mutate(reads_in_umi_filter = ifelse(reads_in_umi > 1, 'pass','fail'), verbose = F) %>% #inner_join(point.reads, by = c('bc','umi'))
+      summarise(reads_in_umi = n()) %>% mutate(reads_in_umi_filter = ifelse(reads_in_umi > 2, 'pass','fail'), verbose = F) %>% #inner_join(point.reads, by = c('bc','umi'))
       filter(reads_in_umi_filter == 'pass') 
     joining_reads <- filter.reads.in.umi %>%
       dplyr::select(bc,Chr,POS,reads_in_umi_filter) %>% 
@@ -129,43 +128,107 @@ score.mutations <- function(mutations, point, read) {
       distinct()
     mutations.filtered <- mutations.filtered %>% left_join(joining.umi.fraction.filter, by = c('bc','Chr','POS'))
     
-    print('umi_fraction filter complete')
+    print('umi_fraction filter complete.')
     
-    # Remove point mutations with only 1 UMI:
-    # (These are possible errors - This filter likely does not improve signal/noise)
-    umi.number.filter <- read.umi.fraction.filter %>% 
-      dplyr::select(bc,Chr,POS,umi) %>% 
-      distinct() %>%
-      group_by(bc,Chr,POS) %>% 
-      summarize(umi_count = n()) %>%
-      mutate(umi_count_filter = ifelse(umi_count > 1, 'pass', 'fail')) %>%
-      filter(umi_count_filter == 'pass') %>% 
-      ungroup()
-    joining.umi.number.filter <- umi.number.filter %>%
-      dplyr::select(bc,Chr,POS,umi_count_filter) %>%
-      distinct()
-    mutations.filtered <- mutations.filtered %>% left_join(joining.umi.number.filter, by = c('bc','Chr','POS'))
-    
-    print('umi_number filter complete')
-    
-    # Remove point mutations with conflicting UMI's:
-    conflict.umi.fraction.filter <- umi.number.filter %>% 
-      dplyr::select(bc,Chr,POS) %>% distinct() %>% inner_join(read.umi.fraction.filter, by = c('bc','Chr','POS')) %>%
-      dplyr::select(bc,Chr,POS,umi,ALT) %>% distinct() %>% 
-      group_by(bc,Chr,POS,ALT) %>% summarize(number_umi_ALT = n()) %>%
-      group_by(bc,Chr,POS) %>% mutate(conflict_umi_fraction = number_umi_ALT / sum(number_umi_ALT)) %>%
-      mutate(conflict_umi_filter = ifelse(conflict_umi_fraction > 0.2, 'pass', 'fail')) %>%
-      filter(conflict_umi_filter == 'pass') %>%
-      ungroup()
-    joining.conflict.umi.fraction.filter <- conflict.umi.fraction.filter %>%
-      dplyr::select(bc,Chr,POS,conflict_umi_filter) %>%
-      distinct()
-    mutations.filtered <- mutations.filtered %>% left_join(joining.conflict.umi.fraction.filter, by = c('bc','Chr','POS'))
-    
-    print('umi_conflict filter')
-    
-    #
+    ## get recovered double mutations, and add these. 
+    double.mutations <- mutate(double.mutations, ALT=ALT.sc) %>% 
+      dplyr::select(-ALT.sc) %>%
+      left_join(mutate(mutations.filtered, is_original=TRUE), by=c("bc", "Chr", "POS", "ALT", "REF")) %>% # add column to indicate which mutations are recovered
+      filter(is.na(is_original)) %>%
+      dplyr::select(-is_original) %>%
+      mutate(recovered_double=TRUE)
+
+    mutations.filtered$recovered_double <- FALSE
+    print(paste(nrow(double.mutations), "second mutations recovered"))
+
+    mutations.filtered <- rbind(mutations.filtered, double.mutations)
+    print("recovered double mutations added")
+
     return(mutations.filtered)
+  }
+
+
+get.unfiltered.doubles <- function(mutations, point, read) {
+  ## the same UMI correction, but do not enforce mutect filtering requirements. (tlod, dp, ecnt)
+  ## Only save the positions with exactly 2 bases present. These will be returned. 
+  require(tidyverse) 
+  sam = unique(mutations$donor)
+  
+    # Generate Running Filter Dataframe:    
+    print('Getting positions from unfiltered with 2 bases.')
+   
+    # For Candidates for Correction:
+    # Transform Point Mutations Read Data:
+    # Join Point Mutations and Read Information:
+    # colnames(point) <- c('read','zero','flag','Chr','p','ALT','qual','POS','i','j')
+    colnames(point) <- c('read','flag','Chr','p','ALT','qual','POS','i','j')
+    point <- point %>% filter(ALT != '.')
+    
+    read <- read %>% separate(X1, into = c('read','bc','umi'), sep = '___') %>% 
+      mutate(bc = substr(bc,6,24), umi = substr(umi,6,16)) %>%
+      distinct() %>% filter(str_length(umi) == 10) %>% dplyr::select(read, bc, umi)
+  
+    point.reads <- point %>%
+      inner_join(read, by = 'read') %>%
+      mutate(donor = sam) %>%
+      mutate(ALT.sc=ALT) %>%
+      dplyr::select(-ALT)
+      
+    print('mutations reformatted')
+    
+    # FILTER:
+    
+    # Filter Point Mutations using the candidate list:
+    # (Just making sure the candidates are the same as original data)
+    candidate_positions <- mutations %>% dplyr::select(bc, Chr, POS)
+    point.reads.filter <- inner_join(point.reads, candidate_positions, by = c('bc','Chr','POS'))
+  
+    # Remove any point mutations with less than 2 reads in a UMI:
+    # (These can't be corrected)
+    filter.reads.in.umi <- point.reads.filter %>% group_by(bc,Chr,POS,umi) %>%
+      summarise(reads_in_umi = n()) %>% mutate(reads_in_umi_filter = ifelse(reads_in_umi > 2, 'pass','fail'), verbose = F) %>% #inner_join(point.reads, by = c('bc','umi'))
+      filter(reads_in_umi_filter == 'pass') 
+    joining_reads <- filter.reads.in.umi %>%
+      dplyr::select(bc,Chr,POS,reads_in_umi_filter) %>% 
+      distinct()
+    mutations <- mutations %>% left_join(joining_reads, by = c('bc','Chr','POS'))
+    
+    print('read_number filter complete')
+    
+    # Remove point mutations with fewer than 50% of supporting reads in a UMI:
+    # (These are likely errors)
+    read.umi.fraction.filter <- filter.reads.in.umi %>% 
+      ungroup() %>% distinct() %>% dplyr::select(bc,umi) %>% inner_join(point.reads, by = c('bc','umi')) %>%
+      group_by(bc,Chr,POS,umi,ALT.sc) %>%
+      summarise(num = n(), verbose = F) %>%
+      group_by(bc,Chr,POS,umi) %>%
+      mutate(umi_fraction = num / sum(num)) %>% # Fraction of each base in UMI
+      mutate(umi_fraction_filter = ifelse(umi_fraction > 0.5, 'pass', 'fail')) %>% # Keep bases with more than 50% reads in UMI
+      filter(umi_fraction_filter == 'pass') %>%
+      ungroup() 
+    joining.umi.fraction.filter <- read.umi.fraction.filter %>%
+      dplyr::select(bc,Chr,POS,ALT.sc,umi_fraction_filter) %>%
+      distinct()
+    mutations <- mutations %>% left_join(joining.umi.fraction.filter, by = c('bc','Chr','POS'))
+    
+    print('umi_fraction filter complete.')
+    
+    ## only keep positions with 2 bases present. Added by Jeffrey Cifello.
+    count.bases.filter <- distinct(mutations, bc, Chr, POS, REF, ALT.sc) %>%
+      filter((is.na(ALT.sc)==F) & (REF!=ALT.sc)) %>% # don't count when the REF is found
+      dplyr::select(-REF) %>%
+      group_by(bc, Chr, POS) %>%
+      summarize(u.alts=length(unique(ALT.sc))) %>%
+      mutate(has.two.filter=ifelse((u.alts==2), "pass", "fail")) %>%
+      filter(has.two.filter=="pass")
+
+    joining.count.filter <- count.bases.filter %>%
+      distinct(bc, Chr, POS, has.two.filter)
+
+    mutations <- inner_join(mutations, joining.count.filter, by=c("bc", "Chr", "POS")) %>%
+      distinct(bc, Chr, POS, REF, ALT.sc) # get the specific mutations that are doubled up
+
+    return(mutations)
   }
 
 
