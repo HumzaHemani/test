@@ -58,6 +58,7 @@ From: ubuntu:latest
     chmod +x UMI_CORRECTION_4.12.0.R
     wget -P / https://github.com/JeffreyCifello/test/raw/main/step8/config
     wget -P / https://github.com/JeffreyCifello/test/raw/main/step8/Step8_UMIcorrection.sh
+    wget -P / https://github.com/JeffreyCifello/test/raw/main/step8/readme.txt
     dos2unix Step8_UMIcorrection.sh
     chmod +x Step8_UMIcorrection.sh
 
