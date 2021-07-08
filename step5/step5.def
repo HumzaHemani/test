@@ -18,6 +18,17 @@ From: ubuntu:latest
     export DEBIAN_FRONTEND=noninteractive
     apt-get -y -q update
     apt-get -y -q install wget
+
+    # java, correct version needed for Mutect
+    mkdir /java
+    wget -P /java --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3a%2F%2Fwww.oracle.com%2Ftechnetwork%2Fjava%2Fjavase%2Fdownloads%2Fjdk8-downloads-2133151.html; oraclelicense=accept-securebackup-cookie;" "https://download.oracle.com/otn-pub/java/jdk/8u291-b10/d7fc238d0cbf4b0dac67be84580cfb4b/jdk-8u291-linux-x64.tar.gz"
+    
+    cd /java 
+    tar xvzf jdk-8u291-linux-x64.tar.gz
+    cd /
+
+    update-alternatives --install /usr/bin/java java /java/jdk1.8.0_291/bin/java 2082
+
     apt-get -y -q install unzip
     apt-get -y -q install build-essential 
     apt-get -y -q install parallel
@@ -54,6 +65,7 @@ From: ubuntu:latest
     R --slave -e 'install.packages("tidyverse")'
     R --slave -e 'install.packages("R.utils")'
     R --slave -e 'install.packages("argparse")'
+
 
     #gatk
     wget -P / https://github.com/broadinstitute/gatk/releases/download/4.1.0.0/gatk-4.1.0.0.zip
