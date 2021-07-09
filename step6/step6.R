@@ -13,6 +13,7 @@ parser$add_argument("reference", help="(10x) reference .fa file.")
 parser$add_argument("data_source", help="Directory required for Funcotator.")
 parser$add_argument("scripts_dir", help="Where to write the bash files calling gatk.")
 parser$add_argument("out", help="Where all pipeline outs will be saved.")
+parser$add_argument("num_cores", help="Jobs value for parallel scripts.")
 args <- parser$parse_args()
 
 # process passed args
@@ -20,6 +21,7 @@ sam <- args$sample
 var_out <- args$variants_in
 ref <- args$reference
 scripts_dir <- args$scripts_dir
+num_cores <- args$num_cores
 # snp_eff <- args$snp_eff
 if (substr(scripts_dir, nchar(scripts_dir), nchar(scripts_dir))=="/") { scripts_dir <- substr(scripts_dir, 1, nchar(scripts_dir)-1)}
 
@@ -60,10 +62,10 @@ REF=',ref,'
 DATASOURCE=',DatSource,'
 
 cat ${SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
-| parallel --jobs=2 --max-args=1 java -Xmx8g -jar /snpEff/snpEff.jar -canon -no-downstream -no-upstream GRCh38.99 $DATA/${SAMPLE}_{1}-1_var_FLTR.vcf \'>\' $OUT/${SAMPLE}_{1}_var.ann.vcf
+| parallel --jobs=',num_cores,' --max-args=1 java -Xmx8g -jar /snpEff/snpEff.jar -canon -no-downstream -no-upstream GRCh38.99 $DATA/${SAMPLE}_{1}-1_var_FLTR.vcf \'>\' $OUT/${SAMPLE}_{1}_var.ann.vcf
 
 cat ${SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
-| parallel --jobs=2 --max-args=1 gatk --java-options "\'-Xmx8g -XX:+UseConcMarkSweepGC -XX:ConcGCThreads=1\'" Funcotator \\
+| parallel --jobs=',num_cores,' --max-args=1 gatk --java-options "\'-Xmx8g -XX:+UseConcMarkSweepGC -XX:ConcGCThreads=1\'" Funcotator \\
 --variant $DATA/${SAMPLE}_{1}-1_var_FLTR.vcf \\
 --reference ', ref,' \\
 --ref-version hg38 \\
