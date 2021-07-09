@@ -80,7 +80,7 @@ score.mutations <- function(mutations, point, read) {
     # For Candidates for Correction:
     # Transform Point Mutations Read Data:
     # Join Point Mutations and Read Information:
-    colnames(point) <- c('read','flag','Chr','p','ALT','qual','POS','i','j')
+    colnames(point) <- c('read','zero','flag','Chr','p','ALT','qual','POS','i','j')
     point <- point %>% filter(ALT != '.')
     
     read <- read %>% separate(X1, into = c('read','bc','umi'), sep = '___') %>% 
