@@ -17,8 +17,11 @@ done
 
 mkdir ${out_dir}/TL
 
-echo cell: ${scBAM}
-echo mutations: ${mutations_csv}
+echo sample: ${sample}
+echo scBAM_dir: ${scBAM_dir}
+echo mutations_csv: ${mutations_csv}
+echo out_dir: ${out_dir}
+echo num_cores: ${num_cores}
 
 # INITIALIZE VARIABLES/ FUNCTIONS / DIRECTORY PATHS:
 
@@ -34,9 +37,7 @@ Rscript /UMI_CORRECTION_4.12.0.R ${mutations_csv} ${out_dir}/TL
 # EXTRACT METADATA FOR CELL MUTATIONS:
 
 cat ${out_dir}/TL/UnfilteredMutations \
-| parallel --jobs=${num_cores} --max-args=4 samtools index ${DATA}/${SAMPLE}/${SAMPLE}_{3}-1.bam
-
-samtools index ${scBAM}
+| parallel --jobs=${num_cores} --max-args=4 samtools index ${scBAM_dir}/${sample}_{3}-1.bam
 
 cat ${out_dir}/TL/UnfilteredMutations \
 | parallel --jobs=${num_cores} --max-args=4 samtools view -b -S -h ${scBAM_dir}/${sample}_{3}-1.bam {1}:{2}-{2} \
