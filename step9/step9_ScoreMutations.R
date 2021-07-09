@@ -12,6 +12,7 @@ source('/VariantCalling_functions_2.R')
 Mutations <- read_csv(args[1])
 Reads <- read_tsv(args[2], col_types = "ccdccccdcc", col_names = FALSE)
 Metadata <- read_tsv(args[3], col_names = FALSE)
+out_dir <- args[4]
 
 # test if there is at least one argument: if not, return an error; 
 # check if the arguments are of the proper type
@@ -25,4 +26,4 @@ if (length(args)==0) {
 ScoredMutations <- score.mutations(Mutations, Reads, Metadata)
 
 # Write scored mutations to drive:
-write.csv(ScoredMutations, file = 'ScoredMutations.csv', row.names = F)
+write.csv(ScoredMutations, file = file.path(out_dir, 'ScoredMutations.csv'), row.names = F)
