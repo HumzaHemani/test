@@ -70,7 +70,7 @@ cat ${SCRIPT}/TL/TL_${SAMPLE}_${TL} \\
 --reference ', ref,' \\
 --ref-version hg38 \\
 --data-sources-path ${DATASOURCE} \\
---output $OUT/${SAMPLE}/${SAMPLE}_{1}_var_func.ann.vcf \\
+--output $OUT/${SAMPLE}_{1}_var_func.ann.vcf \\
 --output-file-format VCF
 ')
   bash.path <- file.path(scripts_dir, paste0('/annotated/VARIANTS_', sam, '_', lis, '.bash'))
