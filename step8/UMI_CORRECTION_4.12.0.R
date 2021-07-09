@@ -6,7 +6,6 @@ args = commandArgs(trailingOnly=TRUE)
 # UMI CORRECTION
 version <- '4.12.0'
 library(tidyverse)
-source('/config')
 
 # Arguments: metadata: tibble, mutations: tibble
 #sc_metadata <- read_csv(args[1])
@@ -19,15 +18,6 @@ if (length(args)==0) {
 } else if (is_tibble(SingleCellMutations) == F) {
   stop("wrong object type: Make sure mutations are in a tibble")
 }
-
-# Filter passing mutations:
-# descriptions of filters in config file
-#FilteredMutations <- SingleCellMutations %>%
-#  filter(TLOD >= tlod & DP > dp & ECNT > ecnt)
-
-# Write arguments for next script:
-# Args <- as.vector(rbind(FilteredMutations$Chr,FilteredMutations$POS,FilteredMutations$bc,FilteredMutations$POS))
-#write(Args, file = 'FilteredMutations')
 
 Args <- as.vector(rbind(SingleCellMutations$Chr,SingleCellMutations$POS,SingleCellMutations$bc,SingleCellMutations$POS))
 write(Args, file = 'UnfilteredMutations')
