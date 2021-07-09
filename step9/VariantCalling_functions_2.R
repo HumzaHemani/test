@@ -56,7 +56,7 @@ Reformat_Annotated_Aggregated_VCF <- function(listcl_mutations) {
 }
 
 score.mutations <- function(mutations, point, read) {
-  
+  mutations <- mutate(mutations, bc=paste0(bc, "-1"))
    # get filter with recovered double-base mutations. 
   double.mutations <- get.unfiltered.doubles(mutations, point, read)
   print("Unfiltered doubles recovery complete")
@@ -149,6 +149,7 @@ score.mutations <- function(mutations, point, read) {
 
 
 get.unfiltered.doubles <- function(mutations, point, read) {
+  mutations <- mutate(mutations, bc=paste0(bc, "-1"))
   ## the same UMI correction, but do not enforce mutect filtering requirements. (tlod, dp, ecnt)
   ## Only save the positions with exactly 2 bases present. These will be returned. 
   require(tidyverse) 
@@ -160,8 +161,7 @@ get.unfiltered.doubles <- function(mutations, point, read) {
     # For Candidates for Correction:
     # Transform Point Mutations Read Data:
     # Join Point Mutations and Read Information:
-    # colnames(point) <- c('read','zero','flag','Chr','p','ALT','qual','POS','i','j')
-    colnames(point) <- c('read','flag','Chr','p','ALT','qual','POS','i','j')
+    colnames(point) <- c('read','zero','flag','Chr','p','ALT','qual','POS','i','j')
     point <- point %>% filter(ALT != '.')
     
     read <- read %>% separate(X1, into = c('read','bc','umi'), sep = '___') %>% 
