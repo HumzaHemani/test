@@ -42,9 +42,9 @@ From: ubuntu:latest
     wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step9/VariantCalling_functions_2.R
     dos2unix VariantCalling_functions_2.R
     chmod +x VariantCalling_functions_2.R
-    wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step9/step9_ScoreMutations.sh
-    dos2unix step9_ScoreMutations.sh
-    chmod +x step9_ScoreMutations.sh
+    wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step9/step9.bash
+    dos2unix step9.bash
+    chmod +x step9.bash
     wget -P / https://raw.githubusercontent.com/JeffreyCifello/test/main/step9/step9_ScoreMutations.R
     dos2unix step9_ScoreMutations.R
     chmod +x step9_ScoreMutations.R
