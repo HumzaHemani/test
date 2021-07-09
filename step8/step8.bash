@@ -1,7 +1,9 @@
 #!/bin/bash
 
-scBAM=${scBAM:default_scBAM} # scBAM for a single cell. 
+sample=${sample:default_sample}
+scBAM_dir=${scBAM_dir:default_scBAM_dir} # scBAM for a single cell. 
 mutations_csv=${mutations_csv:default_mutations_csv} # reformatted mutations output of step 7 for a single cell. 
+out_dir=${out_dir:default_out_dir}
 
 while [ $# -gt 0 ]; do            
     if [[ $1 == *"--"* ]]; then
@@ -12,6 +14,7 @@ while [ $# -gt 0 ]; do
   shift
 done
 
+mkdir ${out_dir}/TL
 
 echo cell: ${scBAM}
 echo mutations: ${mutations_csv}
@@ -25,21 +28,24 @@ extract_meta () {
 
 # GENERATE METADATA:
 
-Rscript /UMI_CORRECTION_4.12.0.R ${mutations_csv}
+Rscript /UMI_CORRECTION_4.12.0.R ${mutations_csv} ${out_dir}/TL
 
 # EXTRACT METADATA FOR CELL MUTATIONS:
 
+cat ${out_dir}/TL/UnfilteredMutations \
+| parallel --jobs=30 --max-args=4 samtools index ${DATA}/${SAMPLE}/${SAMPLE}_{3}.bam
+
 samtools index ${scBAM}
 
-cat ${PWD}/UnfilteredMutations \
-| parallel --jobs=30 --max-args=4 samtools view -b -S -h ${scBAM} {1}:{2}-{2} \
+cat ${out_dir}/TL/UnfilteredMutations \
+| parallel --jobs=30 --max-args=4 samtools view -b -S -h ${scBAM_dir}/${sample}_{3}-1.bam {1}:{2}-{2} \
 '|' java -jar /jvarkit/dist/sam2tsv.jar \
 '|' grep -e {4} \
-'>>' reads.tsv
+'>>' ${out_dir}/${sample}_reads.tsv
 
-cat ${PWD}/UnfilteredMutations \
-| parallel --jobs=30 --max-args=4 samtools view ${scBAM} {1}:{2}-{2} \
+cat ${out_dir}/TL/UnfilteredMutations \
+| parallel --jobs=30 --max-args=4 samtools view ${scBAM_dir}/${sample}_{3}-1.bam {1}:{2}-{2} \
 | extract_meta \
->> meta.tsv
+>> ${out_dir}/${sample}_meta.tsv
 
 ls -l
