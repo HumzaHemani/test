@@ -33,7 +33,7 @@ Rscript /UMI_CORRECTION_4.12.0.R ${mutations_csv} ${out_dir}/TL
 # EXTRACT METADATA FOR CELL MUTATIONS:
 
 cat ${out_dir}/TL/UnfilteredMutations \
-| parallel --jobs=30 --max-args=4 samtools index ${DATA}/${SAMPLE}/${SAMPLE}_{3}.bam
+| parallel --jobs=30 --max-args=4 samtools index ${DATA}/${SAMPLE}/${SAMPLE}_{3}-1.bam
 
 samtools index ${scBAM}
 
